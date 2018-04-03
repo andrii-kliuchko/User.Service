@@ -11,9 +11,28 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/values",
+      "launchUrl": "api/users/getall",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "STORAGE_MODE": "Local"
+      }
+    },
+    "LocalRepository": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "api/users/getall",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "STORAGE_MODE": "Local"
+      }
+    },
+    "RemoteRepository": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "api/users/getall",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "STORAGE_MODE": "Remote"
       }
     },
     "User.Service": {

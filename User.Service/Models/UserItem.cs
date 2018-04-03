@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace User.Service.Models
 {
-    public class User
+    public class UserItem
     {
         public long Id { get; set; }
         public string FirstName { get; set; }
