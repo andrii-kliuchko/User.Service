@@ -13,6 +13,6 @@ namespace User.Service.Controllers
         Task<IActionResult> Get(long id);
         Task<IActionResult> Create(UserItem user);
         Task<IActionResult> Update(long id, UserItem user);
-        Task<IActionResult> Delete(UserItem user);
+        Task<IActionResult> Delete(long id);
     }
 }

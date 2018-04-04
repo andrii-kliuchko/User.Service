@@ -14,7 +14,7 @@ namespace User.Service.Controllers
             throw new NotImplementedException();
         }
 
-        public Task<IActionResult> Delete(UserItem user)
+        public Task<IActionResult> Delete(long id)
         {
             throw new NotImplementedException();
         }

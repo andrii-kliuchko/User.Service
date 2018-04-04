@@ -21,36 +21,37 @@ namespace User.Service.Controllers
             _repository = repository;
         }
         
-        [HttpGet("getall")]
+        [HttpGet("")]
         public async Task<IActionResult> GetAll()
         {
             return _repository.GetList().Result;
         }
         
-        [HttpGet("get/{id}")]
-        public string Get(int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(long id)
         {
-            return Environment.GetEnvironmentVariable("STORAGE_MODE");
+            return _repository.Get(id).Result;
         }
 
         // POST api/<controller>
-        [HttpPost("create")]
-        public void Post([FromBody]UserItem user)
+        [HttpPost("")]
+        public async Task<IActionResult> Post([FromBody]UserItem user)
         {
-            _repository.Create(user);
-            Log.Information(String.Format("Created user ({0})", user));
+            return _repository.Create(user).Result;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public async Task<IActionResult> Put(long id, [FromBody]UserItem user)
         {
+            return _repository.Update(id, user).Result;
         }
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(long id)
         {
+            return _repository.Delete(id).Result;
         }
     }
 }

@@ -25,69 +25,155 @@ namespace User.Service.Controllers
 
         public async Task<IActionResult> Create(UserItem user)
         {
-            Log.Information("Received UserItem to save: {user}", user);
-            Log.Information("Opening json file {_jsonFileName}", _jsonFileName);
+            Log.Information("Received request to save user: {user}", user);
             string fileText;
-            using (FileStream fileStream = new FileStream(_jsonFileName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true))
-            {
-                fileText = await ReadText(fileStream);
-            }
-            Log.Information("Text from fileStream has been read");
-            List<UserItem> usersList = JsonConvert.DeserializeObject<List<UserItem>>(fileText);
-            long nextId;
-            if (usersList == null)
-            {
-                usersList = new List<UserItem>();
-                nextId = 0;
-                Log.Warning("File did not contain JSON, created new List");
-            }
-            else
-            {
-                usersList = usersList.OrderBy(o => o.Id).ToList();
-                nextId = usersList[usersList.Count - 1].Id + 1;
-                Log.Information("Text has been parsed to List");
-            }
-            user.Id = nextId;
-            usersList.Add(user);
-            fileText = JsonConvert.SerializeObject(usersList);
-            Log.Information("List has been serialized to json text");
-            using (FileStream fileStream = new FileStream(_jsonFileName, FileMode.Open, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
-            {
-                WriteText(fileStream, fileText);
-            };
-            return new OkResult();
-        }
-
-        public Task<IActionResult> Delete(UserItem user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IActionResult> Get(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IActionResult> GetList()
-        {
             try
             {
-                using (FileStream fileStream = new FileStream(_jsonFileName, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true))
-                {
-                    string fileText = await ReadText(fileStream);
-                    List<UserItem> usersList = JsonConvert.DeserializeObject<List<UserItem>>(fileText);
-                    return new ObjectResult(usersList);
-                };
+                using (FileStream fileStream = GetStorageFileStreamToRead())
+                    fileText = await ReadText(fileStream);
             }
             catch (FileNotFoundException)
             {
                 return new NoContentResult();
             }
+            List<UserItem> userList = ReadUserListFromJson(fileText);
+            long nextId;
+            if (userList == null)
+            {
+                userList = new List<UserItem>();
+                nextId = 0;
+                Log.Warning("File did not contain JSON, created new List");
+            }
+            else
+            {
+                userList = userList.OrderBy(o => o.Id).ToList();
+                nextId = userList[userList.Count - 1].Id + 1;
+                Log.Information("Text has been parsed to List");
+            }
+            user.Id = nextId;
+            userList.Add(user);
+            fileText = WriteUserListToJson(userList);
+            using (FileStream fileStream = GetStorageFileStreamToWrite())
+                WriteText(fileStream, fileText);
+            return new OkResult();
         }
 
-        public Task<IActionResult> Update(long id, UserItem user)
+        public async Task<IActionResult> Delete(long id)
         {
-            throw new NotImplementedException();
+            string fileText;
+            try
+            {
+                using (FileStream fileStream = GetStorageFileStreamToRead())
+                    fileText = await ReadText(fileStream);
+            }
+            catch (FileNotFoundException)
+            {
+                return new NoContentResult();
+            }
+            List<UserItem> userList = ReadUserListFromJson(fileText);
+            if (userList == null)
+            {
+                Log.Warning("File did not contain JSON, nothing to delete");
+                return new NoContentResult();
+            }
+            for (int i = 0; i < userList.Count; i++)
+            {
+                if (userList[i].Id == id)
+                {
+                    UserItem userToDelete = userList[i];
+                    userList.RemoveAt(i);
+                    fileText = WriteUserListToJson(userList);
+                    using (FileStream fileStream = GetStorageFileStreamToWrite())
+                        WriteText(fileStream, fileText);
+                    Log.Information("User {userToDelete} has been removed from list", userToDelete);
+                    return new OkResult();
+                }
+            }
+            return new NotFoundResult();
+        }
+
+        public async Task<IActionResult> Get(long id)
+        {
+            Log.Information("Received request to find user with id {id}", id);
+            string fileText;
+            try
+            {
+                using (FileStream fileStream = GetStorageFileStreamToRead())
+                    fileText = await ReadText(fileStream);
+            }
+            catch (FileNotFoundException)
+            {
+                return new NoContentResult();
+            }
+            List<UserItem> userList = ReadUserListFromJson(fileText);
+            if (userList == null)
+            {
+                Log.Warning("File did not contain JSON, nothing to find");
+                return new NoContentResult();
+            }
+            else
+            {
+                foreach (UserItem user in userList)
+                {
+                    if (user.Id.Equals(id))
+                        return new OkObjectResult(user);
+                }
+                return new NotFoundResult();
+            }
+        }
+
+        public async Task<IActionResult> GetList()
+        {
+            string fileText;
+            try
+            {
+                using (FileStream fileStream = GetStorageFileStreamToRead())
+                    fileText = await ReadText(fileStream);
+            }
+            catch (FileNotFoundException)
+            {
+                return new NoContentResult();
+            }
+            List<UserItem> usersList = ReadUserListFromJson(fileText);
+            return new OkObjectResult(usersList);
+        }
+
+        public async Task<IActionResult> Update(long id, UserItem newUser)
+        {
+            Log.Information("Received request to update user with id {id}", id);
+            string fileText;
+            try
+            {
+                using (FileStream fileStream = GetStorageFileStreamToRead())
+                    fileText = await ReadText(fileStream);
+            }
+            catch (FileNotFoundException)
+            {
+                return new NoContentResult();
+            }
+            List<UserItem> userList = ReadUserListFromJson(fileText);
+            if (userList == null)
+            {
+                Log.Warning("File did not contain JSON, nothing to update");
+                return new NoContentResult();
+            }
+            else
+            {
+                for (int i = 0; i < userList.Count; i++)
+                {
+                    if (userList[i].Id == id)
+                    {
+                        newUser.Id = id;
+                        userList[i] = newUser;
+                        fileText = WriteUserListToJson(userList);
+                        using (FileStream fileStream = GetStorageFileStreamToWrite())
+                            WriteText(fileStream, fileText);
+                        Log.Information("User {newUser} has been updated in list", newUser);
+                        return new OkResult();
+                    }
+                }
+                return new NotFoundResult();
+            }
         }
 
         private async Task<string> ReadText(FileStream fileStream)
@@ -108,6 +194,26 @@ namespace User.Service.Controllers
             byte[] encodedText = Encoding.Unicode.GetBytes(text);
             Log.Information("Starting to write {Length} bytes", encodedText.Length);
             await fileStream.WriteAsync(encodedText, 0, encodedText.Length);
+        }
+
+        private List<UserItem> ReadUserListFromJson(string jsonText)
+        {
+            return JsonConvert.DeserializeObject<List<UserItem>>(jsonText);
+        }
+
+        private string WriteUserListToJson(List<UserItem> userList)
+        {
+            return JsonConvert.SerializeObject(userList);
+        }
+
+        private FileStream GetStorageFileStreamToRead()
+        {
+            return new FileStream(_jsonFileName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+        }
+
+        private FileStream GetStorageFileStreamToWrite()
+        {
+            return new FileStream(_jsonFileName, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
         }
     }
 }
