@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using User.Service.Models;
+using Serilog;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,7 +22,7 @@ namespace User.Service.Controllers
         }
         
         [HttpGet("getall")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
             return _repository.GetList().Result;
         }
@@ -33,9 +34,11 @@ namespace User.Service.Controllers
         }
 
         // POST api/<controller>
-        [HttpPost]
-        public void Post([FromBody]string value)
+        [HttpPost("create")]
+        public void Post([FromBody]UserItem user)
         {
+            _repository.Create(user);
+            Log.Information(String.Format("Created user ({0})", user));
         }
 
         // PUT api/<controller>/5

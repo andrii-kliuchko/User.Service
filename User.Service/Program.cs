@@ -7,6 +7,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace User.Service
 {
@@ -14,6 +15,13 @@ namespace User.Service
     {
         public static void Main(string[] args)
         {
+            var logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.Console()
+                .WriteTo.File("logs\\user.service.log", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+            Log.Logger = logger;
+            Log.Warning("Logger configured");
             BuildWebHost(args).Run();
         }
 

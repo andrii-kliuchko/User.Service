@@ -10,5 +10,10 @@ namespace User.Service.Models
         public long Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+
+        public override string ToString()
+        {
+            return String.Format("Id: {0}, FirstName: {1}, LastName: {2}", Id, FirstName, LastName);
+        }
     }
 }
