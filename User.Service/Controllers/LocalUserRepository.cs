@@ -24,6 +24,8 @@ namespace User.Service.Controllers
 
         public async Task<IActionResult> Create(UserItem user)
         {
+            if (user == null)
+                return new NoContentResult();
             Log.Information("Received request to save user: {user}", user);
             string fileText;
             try
@@ -40,7 +42,7 @@ namespace User.Service.Controllers
             if (userList == null)
             {
                 userList = new List<UserItem>();
-                nextId = 0;
+                nextId = 1;
                 Log.Warning("File did not contain JSON, created new List");
             }
             else
@@ -59,6 +61,8 @@ namespace User.Service.Controllers
 
         public async Task<IActionResult> Delete(long id)
         {
+            if (id < 1)
+                return new NoContentResult();
             string fileText;
             try
             {
@@ -76,7 +80,6 @@ namespace User.Service.Controllers
                 return new NoContentResult();
             }
             for (int i = 0; i < userList.Count; i++)
-            {
                 if (userList[i].Id == id)
                 {
                     UserItem userToDelete = userList[i];
@@ -87,12 +90,13 @@ namespace User.Service.Controllers
                     Log.Information("User {userToDelete} has been removed from list", userToDelete);
                     return new OkResult();
                 }
-            }
             return new NotFoundResult();
         }
 
         public async Task<IActionResult> Get(long id)
         {
+            if (id < 1)
+                return new NoContentResult();
             Log.Information("Received request to find user with id {id}", id);
             string fileText;
             try
@@ -113,10 +117,8 @@ namespace User.Service.Controllers
             else
             {
                 foreach (UserItem user in userList)
-                {
                     if (user.Id.Equals(id))
                         return new OkObjectResult(user);
-                }
                 return new NotFoundResult();
             }
         }
@@ -139,6 +141,8 @@ namespace User.Service.Controllers
 
         public async Task<IActionResult> Update(long id, UserItem newUser)
         {
+            if (id < 1 || newUser == null)
+                return new NoContentResult();
             Log.Information("Received request to update user with id {id}", id);
             string fileText;
             try

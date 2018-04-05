@@ -27,6 +27,8 @@ namespace User.Service.Controllers
 
         public async Task<IActionResult> Delete(long id)
         {
+            if (id < 1)
+                return new NoContentResult();
             var user = await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
             if (user == null)
                 return new NoContentResult();
