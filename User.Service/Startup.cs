@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using User.Service.Controllers;
-using User.Service.Models;
+using User.Service.Data;
 
 namespace User.Service
 {
@@ -22,10 +22,9 @@ namespace User.Service
         public void ConfigureServices(IServiceCollection services)
         {
             string storageModeVariable = Environment.GetEnvironmentVariable("STORAGE_MODE").ToUpper();
+
             if (storageModeVariable.Equals("LOCAL"))
-            {
                 services.AddScoped<IUserRepository, LocalUserRepository>();
-            }
             else if (storageModeVariable.Equals("REMOTE"))
             {
                 services.AddScoped<IUserRepository, RemoteUserRepository>();
