@@ -93,6 +93,15 @@ namespace User.Service.Controllers
             return new NotFoundResult();
         }
 
+        public async Task<IActionResult> DeleteAll()
+        {
+            List<UserItem> userList = new List<UserItem>();
+            string fileText = WriteUserListToJson(userList);
+            using (FileStream fileStream = GetStorageFileStreamToWrite())
+                WriteText(fileStream, fileText);
+            return new OkResult();
+        }
+
         public async Task<IActionResult> Get(long id)
         {
             if (id < 1)

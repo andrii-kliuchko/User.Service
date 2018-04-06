@@ -28,26 +28,29 @@ namespace User.Service.Controllers
         {
             return _repository.Get(id).Result;
         }
-
-        // POST api/<controller>
+        
         [HttpPost("")]
         public async Task<IActionResult> Post([FromBody]UserItem user)
         {
             return _repository.Create(user).Result;
         }
-
-        // PUT api/<controller>/5
+        
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(long id, [FromBody]UserItem user)
         {
             return _repository.Update(id, user).Result;
         }
-
-        // DELETE api/<controller>/5
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(long id)
         {
             return _repository.Delete(id).Result;
+        }
+
+        [HttpDelete("")]
+        public async Task<IActionResult> Delete()
+        {
+            return _repository.DeleteAll().Result;
         }
     }
 }

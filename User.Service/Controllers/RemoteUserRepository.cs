@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using User.Service.Models;
 using User.Service.Data;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace User.Service.Controllers
 {
@@ -22,7 +23,7 @@ namespace User.Service.Controllers
                 return new NoContentResult();
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return new OkResult();
+            return new OkObjectResult(user);
         }
 
         public async Task<IActionResult> Delete(long id)
@@ -38,6 +39,19 @@ namespace User.Service.Controllers
                 await _context.SaveChangesAsync();
                 return new OkResult();
             }
+        }
+
+        public async Task<IActionResult> DeleteAll()
+        {
+            Log.Information("Received request to delete all users");
+            string tableName = _context.Model.FindEntityType(typeof(UserItem)).Relational().TableName;
+            Log.Information("Identified table name to clear: {tableName}", tableName);
+            int result = await _context.Database.ExecuteSqlCommandAsync(String.Format("DELETE from {0}", tableName));
+            Log.Information("Return code from Database: {result}", result);
+            if (result != 0)
+                return new OkObjectResult(result);
+            else
+                return new NoContentResult();
         }
 
         public async Task<IActionResult> Get(long id)

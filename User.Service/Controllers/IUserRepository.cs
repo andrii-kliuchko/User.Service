@@ -11,5 +11,6 @@ namespace User.Service.Controllers
         Task<IActionResult> Create(UserItem user);
         Task<IActionResult> Update(long id, UserItem user);
         Task<IActionResult> Delete(long id);
+        Task<IActionResult> DeleteAll();
     }
 }
