@@ -56,7 +56,7 @@ namespace User.Service.Controllers
             fileText = WriteUserListToJson(userList);
             using (FileStream fileStream = GetStorageFileStreamToWrite())
                 WriteText(fileStream, fileText);
-            return new OkResult();
+            return new OkObjectResult(user.Id);
         }
 
         public async Task<IActionResult> Delete(long id)

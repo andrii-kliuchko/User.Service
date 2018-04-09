@@ -23,7 +23,7 @@ namespace User.Service.Controllers
                 return new NoContentResult();
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return new OkObjectResult(user);
+            return new OkObjectResult(user.Id);
         }
 
         public async Task<IActionResult> Delete(long id)
