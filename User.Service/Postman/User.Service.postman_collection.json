@@ -1,0 +1,663 @@
+{
+	"info": {
+		"_postman_id": "f2a0b67f-10e5-4ec8-b38a-e6c2b73ca04b",
+		"name": "User.Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Basic CRUD",
+			"description": "",
+			"item": [
+				{
+					"name": "Create user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "05e3f1be-bc78-40fa-8bbf-451edfc86127",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Location is present\", function () {",
+									"    pm.response.to.have.header(\"Location\");",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var userFirstName = pm.environment.get(\"userFirstName\");",
+									"var userLastName = pm.environment.get(\"userLastName\");",
+									"",
+									"var userId = jsonData[\"id\"];",
+									"var location = parseInt(pm.response.headers.get(\"location\"), 10);",
+									"",
+									"pm.test(\"Location equals to user Id\", function () {",
+									"    pm.expect(location).to.eql(userId);",
+									"});",
+									"",
+									"pm.environment.set(\"userId\", userId);",
+									"",
+									"pm.test(\"Returned user id is a number\", function () {",
+									"    pm.expect(userId === parseInt(userId, 10)).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Returned user id is valid\", function () {",
+									"    pm.expect(userId > 0).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Returned user name is the same\", function () {",
+									"    pm.expect(jsonData[\"firstName\"]).to.eql(userFirstName);",
+									"    pm.expect(jsonData[\"lastName\"]).to.eql(userLastName);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"FirstName\": \"{{userFirstName}}\",\n\t\"LastName\": \"{{userLastName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ef5a2bde-1001-4d57-b64c-d5d7e70b1d99",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var userFirstName = pm.environment.get(\"userFirstName\");",
+									"var userLastName = pm.environment.get(\"userLastName\");",
+									"",
+									"var jsonData = pm.response.json();",
+									"    ",
+									"pm.test(\"JSON response check\", function () {",
+									"    pm.expect(jsonData[\"firstName\"]).to.eql(userFirstName);",
+									"    pm.expect(jsonData[\"lastName\"]).to.eql(userLastName);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{url}}/{{userId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ab489aff-12cf-4e26-a2d2-1acba3cea596",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var userFirstName = pm.environment.get(\"userFirstName\");",
+									"var userLastName = pm.environment.get(\"userLastName\");",
+									"",
+									"var jsonData = pm.response.json();",
+									"var lastUserIndex = jsonData.length - 1;",
+									"",
+									"pm.test(\"JSON last user in array check\", function () {",
+									"    pm.expect(jsonData[lastUserIndex][\"firstName\"]).to.eql(userFirstName);",
+									"    pm.expect(jsonData[lastUserIndex][\"lastName\"]).to.eql(userLastName);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "69158bfb-2647-4a99-9e59-7ac6da5f6319",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"FirstName\": \"{{userFirstName}}\",\n  \"LastName\": \"{{userLastNameNew}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/{{userId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get updated user by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "35cbd5cf-4444-4e27-9754-649e4066f2aa",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var userFirstName = pm.environment.get(\"userFirstName\");",
+									"var userLastNameNew = pm.environment.get(\"userLastNameNew\");",
+									"",
+									"pm.test(\"JSON response check\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData[\"firstName\"]).to.eql(userFirstName);",
+									"    pm.expect(jsonData[\"lastName\"]).to.eql(userLastNameNew);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{url}}/{{userId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ef1a704c-47bd-4713-a567-d0cc69c186c1",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.environment.unset(\"userId\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{url}}/{{userId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Errors",
+			"description": "",
+			"item": [
+				{
+					"name": "Create user without first name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "044095db-41c0-42fb-ba99-bb48e311e35e",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Body is empty\", function () {",
+									"    pm.expect(pm.response.responseSize === 0).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"LastName\": \"{{userLastName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create user without last name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4e20fccc-37d7-4952-a3ef-d38f3f2b5ad2",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Body is empty\", function () {",
+									"    pm.expect(pm.response.responseSize === 0).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"FirstName\": \"{{userFirstName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user by incorrect id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "81ed3d9d-014e-43d8-88bb-c8578ad65c27",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Body is empty\", function () {",
+									"    pm.expect(pm.response.responseSize === 0).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{url}}/-1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"-1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user by nonexistent id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "81ed3d9d-014e-43d8-88bb-c8578ad65c27",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Body is empty\", function () {",
+									"    pm.expect(pm.response.responseSize === 0).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{url}}/-1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"-1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user by incorrect id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3e3527b0-f7e0-437c-ac47-ec27f6d3ebbb",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"FirstName\": \"{{userFirstName}}\",\n  \"LastName\": \"{{userLastNameNew}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/-1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"-1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user by nonexistent id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "dd331a85-afcc-4c1b-9f1a-444639b56feb",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"FirstName\": \"{{userFirstName}}\",\n  \"LastName\": \"{{userLastNameNew}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/10000",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"10000"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user without first name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3f41f79c-c85e-4308-a300-3e50ea3c9978",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"LastName\": \"{{userLastNameNew}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user without last name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3f41f79c-c85e-4308-a300-3e50ea3c9978",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"FirstName\": \"{{userFirstName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user by incorrect id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3308d1ea-c980-4443-9d86-065b0b63fbf9",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{url}}/-1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"-1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user by nonexistent id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "33c6116f-2846-408a-a5e1-c8668c966bf6",
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{url}}/10000",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"10000"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

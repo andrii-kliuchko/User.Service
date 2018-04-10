@@ -1,0 +1,110 @@
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: 'User.Service'
+  description: 'Simple user list server'
+  contact:
+    email: pavlo.bielousov@globallogic.com
+host: virtserver.swaggerhub.com
+basePath: /pavelbelousov/User.Service/1.0.0
+schemes:
+ - https
+ - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /api/users/:
+    post:
+      summary: Add a new user to the list
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            required:
+              - firstName
+              - lastName
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+          description: User object to add to the list
+          required: true
+      responses:
+        201:
+          description: Successfully created
+        400:
+          description: Invalid data
+    get:
+      summary: Get the list of users
+      responses:
+        200:
+          description: OK
+        204:
+          description: List is empty
+  /api/users/{id}:
+    get:
+      summary: Get a user with specified ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          minimum: 1
+          description: The user ID
+      responses:
+        200:
+          description: OK
+        400:
+          description: User ID is invalid
+        404:
+          description: A user with the specified ID was not found
+    put:
+      summary: Update a user with specified ID with new information
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          minimum: 1
+          description: The user ID
+        - in: body
+          name: user
+          schema:
+            type: object
+            required:
+              - firstName
+              - lastName
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+          description: User object to update in the list
+          required: true
+      responses:
+        200:
+          description: User's info updated
+        400:
+          description: User ID and/or user data are invalid
+        404:
+          description: A user with the specified ID was not found
+    delete:
+      summary: Delete user with specified ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          minimum: 1
+          description: The user ID
+      responses:
+        200:
+          description: OK
+        400:
+          description: User ID is invalid
+        404:
+          description: A user with the specified ID was not found

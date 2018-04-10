@@ -19,20 +19,24 @@ namespace User.Service.Controllers
 
         public async Task<IActionResult> Create(UserItem user)
         {
-            if (user == null)
-                return new NoContentResult();
+            Log.Information("Received request to create user: {user}", user);
+            if (user == null || user.FirstName == null || user.LastName == null)
+            {
+                Log.Warning("User info is absent or not full");
+                return new BadRequestResult();
+            }
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return new OkObjectResult(user.Id);
+            return new CreatedResult(user.Id.ToString(), user);
         }
 
         public async Task<IActionResult> Delete(long id)
         {
             if (id < 1)
-                return new NoContentResult();
+                return new BadRequestResult();
             var user = await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
             if (user == null)
-                return new NoContentResult();
+                return new NotFoundResult();
             else
             {
                 _context.Users.Remove(user);
@@ -57,10 +61,10 @@ namespace User.Service.Controllers
         public async Task<IActionResult> Get(long id)
         {
             if (id < 1)
-                return new NoContentResult();
+                return new BadRequestResult();
             var user = await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
             if (user == null)
-                return new NoContentResult();
+                return new NotFoundResult();
             else
                 return new OkObjectResult(user);
         }
@@ -76,8 +80,9 @@ namespace User.Service.Controllers
 
         public async Task<IActionResult> Update(long id, UserItem userNew)
         {
-            if (userNew == null || id < 1)
-                return new NoContentResult();
+            Log.Information("Received request to update user: {userNew}", userNew);
+            if (userNew == null || id < 1 || userNew.FirstName == null || userNew.LastName == null)
+                return new BadRequestResult();
             var userInDb = await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
             if (userInDb == null)
                 return new NotFoundResult();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Serilog;
@@ -24,9 +25,12 @@ namespace User.Service.Controllers
 
         public async Task<IActionResult> Create(UserItem user)
         {
-            if (user == null)
+            Log.Information("Received request to create user: {user}", user);
+            if (user == null || user.FirstName == null || user.LastName == null)
+            {
+                Log.Warning("User info is absent or not full");
                 return new NoContentResult();
-            Log.Information("Received request to save user: {user}", user);
+            }
             string fileText;
             try
             {
@@ -56,7 +60,7 @@ namespace User.Service.Controllers
             fileText = WriteUserListToJson(userList);
             using (FileStream fileStream = GetStorageFileStreamToWrite())
                 WriteText(fileStream, fileText);
-            return new OkObjectResult(user.Id);
+            return new CreatedResult(user.Id.ToString(), user);
         }
 
         public async Task<IActionResult> Delete(long id)
@@ -71,13 +75,13 @@ namespace User.Service.Controllers
             }
             catch (FileNotFoundException)
             {
-                return new NoContentResult();
+                return new NotFoundResult();
             }
             List<UserItem> userList = ReadUserListFromJson(fileText);
             if (userList == null)
             {
                 Log.Warning("File did not contain JSON, nothing to delete");
-                return new NoContentResult();
+                return new NotFoundResult();
             }
             for (int i = 0; i < userList.Count; i++)
                 if (userList[i].Id == id)
@@ -105,7 +109,7 @@ namespace User.Service.Controllers
         public async Task<IActionResult> Get(long id)
         {
             if (id < 1)
-                return new NoContentResult();
+                return new BadRequestResult();
             Log.Information("Received request to find user with id {id}", id);
             string fileText;
             try
@@ -115,13 +119,13 @@ namespace User.Service.Controllers
             }
             catch (FileNotFoundException)
             {
-                return new NoContentResult();
+                return new NotFoundResult();
             }
             List<UserItem> userList = ReadUserListFromJson(fileText);
             if (userList == null)
             {
                 Log.Warning("File did not contain JSON, nothing to find");
-                return new NoContentResult();
+                return new NotFoundResult();
             }
             else
             {
@@ -148,10 +152,10 @@ namespace User.Service.Controllers
             return new OkObjectResult(usersList);
         }
 
-        public async Task<IActionResult> Update(long id, UserItem newUser)
+        public async Task<IActionResult> Update(long id, UserItem userNew)
         {
-            if (id < 1 || newUser == null)
-                return new NoContentResult();
+            if (id < 1 || userNew == null || userNew.FirstName == null || userNew.LastName == null)
+                return new BadRequestResult();
             Log.Information("Received request to update user with id {id}", id);
             string fileText;
             try
@@ -161,13 +165,13 @@ namespace User.Service.Controllers
             }
             catch (FileNotFoundException)
             {
-                return new NoContentResult();
+                return new NotFoundResult();
             }
             List<UserItem> userList = ReadUserListFromJson(fileText);
             if (userList == null)
             {
                 Log.Warning("File did not contain JSON, nothing to update");
-                return new NoContentResult();
+                return new NotFoundResult();
             }
             else
             {
@@ -175,12 +179,12 @@ namespace User.Service.Controllers
                 {
                     if (userList[i].Id == id)
                     {
-                        newUser.Id = id;
-                        userList[i] = newUser;
+                        userNew.Id = id;
+                        userList[i] = userNew;
                         fileText = WriteUserListToJson(userList);
                         using (FileStream fileStream = GetStorageFileStreamToWrite())
                             WriteText(fileStream, fileText);
-                        Log.Information("User {newUser} has been updated in list", newUser);
+                        Log.Information("User {newUser} has been updated in list", userNew);
                         return new OkResult();
                     }
                 }
