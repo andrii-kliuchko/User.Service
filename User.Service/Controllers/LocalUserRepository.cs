@@ -29,7 +29,7 @@ namespace User.Service.Controllers
             if (user == null || user.FirstName == null || user.LastName == null)
             {
                 Log.Warning("User info is absent or not full");
-                return new NoContentResult();
+                return new BadRequestResult();
             }
             string fileText;
             try
@@ -66,7 +66,7 @@ namespace User.Service.Controllers
         public async Task<IActionResult> Delete(long id)
         {
             if (id < 1)
-                return new NoContentResult();
+                return new BadRequestResult();
             string fileText;
             try
             {
