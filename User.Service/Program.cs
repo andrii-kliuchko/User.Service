@@ -22,17 +22,20 @@ namespace User.Service
             Log.Logger = logger;
             Log.Warning("Logger configured");
 
-            using (var scope = host.Services.CreateScope())
+            if (Environment.GetEnvironmentVariable("STORAGE_MODE").ToUpper() == "REMOTE")
             {
-                var services = scope.ServiceProvider;
-                try
+                using (var scope = host.Services.CreateScope())
                 {
-                    var context = services.GetRequiredService<UserContext>();
-                    DbInitializer.Initialize(context);
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "An error occured while seeding the database");
+                    var services = scope.ServiceProvider;
+                    try
+                    {
+                        var context = services.GetRequiredService<UserContext>();
+                        DbInitializer.Initialize(context);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e, "An error occured while seeding the database");
+                    }
                 }
             }
 

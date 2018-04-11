@@ -9,8 +9,8 @@
   },
   "profiles": {
     "LocalRepository": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
+      "commandName": "Project",
+      "launchBrowser": false,
       "launchUrl": "api/users",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
@@ -18,8 +18,8 @@
       }
     },
     "RemoteRepository": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
+      "commandName": "Project",
+      "launchBrowser": false,
       "launchUrl": "api/users",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
